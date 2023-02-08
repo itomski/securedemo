@@ -77,4 +77,17 @@ public class User implements Serializable {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("id=").append(id);
+        sb.append(", username='").append(username).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", role=").append(role);
+        sb.append(", status=").append(status);
+        sb.append('}');
+        return sb.toString();
+    }
 }

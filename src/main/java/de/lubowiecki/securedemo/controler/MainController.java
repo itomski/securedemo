@@ -1,6 +1,9 @@
 package de.lubowiecki.securedemo.controler;
 
 import de.lubowiecki.securedemo.model.UserDto;
+import de.lubowiecki.securedemo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +16,11 @@ import java.util.Optional;
 
 @Controller
 public class MainController {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("")
     public String index(Model model) {
@@ -37,7 +45,13 @@ public class MainController {
         if(result.hasErrors()) {
             return "register";
         }
-        // TODO: Speichern
+        userRepository.save(userDto.convert(passwordEncoder));
+        return "redirect:/register/success";
+    }
+
+    @GetMapping("register/success")
+    public String registerSuccess(UserDto userDto, Model model) {
+        model.addAttribute("success", true);
         return "register";
     }
 }
