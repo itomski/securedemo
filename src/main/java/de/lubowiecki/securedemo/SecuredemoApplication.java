@@ -38,6 +38,22 @@ public class SecuredemoApplication implements CommandLineRunner {
             user.setRole(UserRole.ADMIN);
             user.setStatus(UserStatus.ACTIVE);
             userRepository.save(user);
+
+            user = new User();
+            user.setUsername("p.parker");
+            user.setEmail("p.parker@shield.org");
+            user.setPassword(passwordEncoder.encode("geheim123"));
+            user.setRole(UserRole.USER);
+            user.setStatus(UserStatus.ACTIVE);
+            userRepository.save(user);
+
+            user = new User();
+            user.setUsername("b.banner");
+            user.setEmail("b.banner@shield.org");
+            user.setPassword(passwordEncoder.encode("geheim123"));
+            user.setRole(UserRole.USER);
+            user.setStatus(UserStatus.BLOCKED);
+            userRepository.save(user);
         }
     }
 }
