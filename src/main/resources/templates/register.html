@@ -36,9 +36,9 @@
           </div>
 
           <div class="mb-3">
-            <label for="passwordRepeat" class="form-label">Passwort wiederholen</label>
-            <input type="password" class="form-control" th:field="*{passwordRepeat}">
-            <p th:if="${#fields.hasErrors('passwordRepeat')}" th:errors="*{passwordRepeat}" class="text-danger"></p>
+            <label for="passwordConfirmation" class="form-label">Passwort wiederholen</label>
+            <input type="password" class="form-control" th:field="*{passwordConfirmation}">
+            <p th:if="${#fields.hasErrors('passwordConfirmation')}" th:errors="*{passwordConfirmation}" class="text-danger"></p>
           </div>
 
           <button class="btn btn-success">Registrieren</button>

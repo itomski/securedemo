@@ -1,0 +1,73 @@
+package de.lubowiecki.securedemo.service;
+
+import de.lubowiecki.securedemo.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class CustomEmailService {
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private SpringTemplateEngine templateEngine; // Thymeleaf
+
+    public void sendSimpleEmail(String to, String subject, String text) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("ike@localhost");
+        msg.setTo(to);
+        msg.setSubject(subject);
+        msg.setText(text);
+        mailSender.send(msg);
+    }
+
+    // TODO: muss geändert werden
+    public void sendHtmlEmail(String to, String subject) throws MessagingException {
+        MimeMessage msg = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+        helper.setFrom("ike@localhost");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("link", "http://localhost:8080/activate/1234");
+        helper.setText(renderTemplateEmail(vars, "email-register"), true);
+        mailSender.send(msg);
+    }
+
+    public void sendHtmlRegisterEmail(User user, String token) throws MessagingException {
+        MimeMessage msg = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+        helper.setFrom("ike@localhost");
+        helper.setTo(user.getEmail());
+        helper.setSubject("Registrierung");
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("link", "http://localhost:8080/activate/" + token);
+        helper.setText(renderTemplateEmail(vars, "email-register"), true);
+        mailSender.send(msg);
+    }
+
+    /**
+     * @param vars Map von Variablen
+     * @param tpl Thymeleaf-Template
+     * @return HTML aus dem Template. Platzhalter sind durch konkrete Werte gefüllt
+     */
+    public String renderTemplateEmail(Map<String, Object> vars, String tpl) {
+        Context context = new Context();
+        context.setVariables(vars);
+        String html = templateEngine.process(tpl, context);
+        return html;
+    }
+}

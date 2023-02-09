@@ -61,13 +61,15 @@ public class SecurityConfig {
                 //.defaultSuccessUrl("/") // Weiterleitung nach dem Login
             .and()
                 .authorizeRequests()
-                    .antMatchers("/", "/login/**", "/register/**", "/h2-console/**").permitAll() // Frei zugänglich
+                    .antMatchers("/", "/login/**", "/register/**", "/activate/**", "/h2-console/**").permitAll() // Frei zugänglich
                     //.antMatchers("/admin/**").hasRole("ADMIN") // Freigabe nur mit einer bestimmten Role
                     .anyRequest().authenticated() // Alle anderen erfordern Anmeldung
             .and()
                 .logout().logoutUrl("/logout")
                     .invalidateHttpSession(true); // Session wird ungültig
                     //.deleteCookies("JSESSIONID"); // Session-Cookie wird im Browser gelöscht
+
+        http.headers().frameOptions().sameOrigin(); // Freigabe der Frames für H2-Datenbank
 
         return http.build();
     }

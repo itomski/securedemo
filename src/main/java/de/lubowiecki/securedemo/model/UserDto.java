@@ -1,35 +1,29 @@
 package de.lubowiecki.securedemo.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import de.lubowiecki.securedemo.annotation.Password;
+import de.lubowiecki.securedemo.annotation.PasswordMatch;
+import de.lubowiecki.securedemo.validator.WithConfirmedPassword;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class UserDto {
+@PasswordMatch
+public class UserDto implements WithConfirmedPassword {
 
     @NotEmpty
     private String username;
 
-    @Email
+    @Email(regexp = ".*")
     @NotEmpty
     private String email;
 
-    /*
-    Min 1 uppercase letter.
-    Min 1 lowercase letter.
-    Min 1 special character.
-    Min 1 number.
-    Min 8 characters.
-    */
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,25}$")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,25}$", message = "Passwort ist ungültig.")
     private String password;
 
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,25}$")
-    private String passwordRepeat;
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[#$@!%&*?])[A-Za-z\\d#$@!%&*?]{8,25}$", message = "Passwort ist ungültig.")
+    private String passwordConfirmation;
 
     public User convert(PasswordEncoder passwordEncoder) {
         User user = new User();
@@ -37,7 +31,7 @@ public class UserDto {
         user.setEmail(email.toLowerCase());
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(UserRole.USER);
-        user.setStatus(UserStatus.ACTIVE);
+        user.setStatus(UserStatus.CREATED);
         return user;
     }
 
@@ -53,8 +47,8 @@ public class UserDto {
         return password;
     }
 
-    public String getPasswordRepeat() {
-        return passwordRepeat;
+    public String getPasswordConfirmation() {
+        return passwordConfirmation;
     }
 
     public void setUsername(String username) {
@@ -69,7 +63,7 @@ public class UserDto {
         this.password = password;
     }
 
-    public void setPasswordRepeat(String passwordRepeat) {
-        this.passwordRepeat = passwordRepeat;
+    public void setPasswordConfirmation(String passwordConfirmation) {
+        this.passwordConfirmation = passwordConfirmation;
     }
 }
