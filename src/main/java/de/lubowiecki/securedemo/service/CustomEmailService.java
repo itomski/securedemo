@@ -60,6 +60,18 @@ public class CustomEmailService {
         mailSender.send(msg);
     }
 
+    public void sendHtmlForgotEmail(User user, UUID token) throws MessagingException {
+        MimeMessage msg = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+        helper.setFrom("ike@localhost");
+        helper.setTo(user.getEmail());
+        helper.setSubject("Passwort zurücksetzen");
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("link", "http://localhost:8080/forgot/reset?token=" + token);
+        helper.setText(renderTemplateEmail(vars, "email-forgot"), true);
+        mailSender.send(msg);
+    }
+
     /**
      * @param vars Map von Variablen
      * @param tpl Thymeleaf-Template

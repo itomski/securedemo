@@ -62,6 +62,68 @@ public class MainController {
         return "register";
     }
 
+    @GetMapping("forgot")
+    public String forgotForm(UserDto userDto, Model model) {
+        model.addAttribute("userDto", userDto);
+        return "forgot";
+    }
+
+    @PostMapping("forgot")
+    public String sendForgotEmail(UserDto userDto, Model model) throws MessagingException {
+
+        // Wenn nicht vorhanden, soll eine Exception geworfen werden
+        Optional<User> opt = userRepository.findByEmailIgnoreCase(userDto.getEmail());
+        if(opt.isPresent()) {
+            User user = opt.get(); // get liefert bei einem leeren Optional eine Exception
+            Token token = new Token(user, Token.TokenType.PASSWORD);
+            tokenRepository.save(token);
+            emailService.sendHtmlForgotEmail(user, token.getId());
+        }
+
+        model.addAttribute("sent", true);
+        return "forgot";
+    }
+
+    @GetMapping("forgot/reset")
+    public String checkForgotToken(@RequestParam("token") String tokenStr, Model model) {
+        try {
+            Optional<Token> opt = tokenRepository.findByIdAndType(UUID.fromString(tokenStr), Token.TokenType.PASSWORD);
+
+            if(opt.isPresent()) {
+                Token token = opt.get();
+                User user = token.getUser();
+                UserDto userDto = new UserDto(); // TODO: Konvertierung von user nach userDto einbauen
+                userDto.setUsername(user.getUsername());
+                userDto.setEmail(user.getEmail());
+                model.addAttribute("userDto", userDto);
+            }
+            else {
+                throw new RuntimeException("Token nicht gefunden.");
+            }
+        }
+        catch(Exception e) {
+            model.addAttribute("error", true);
+        }
+
+        return "reset-password";
+    }
+
+    @PostMapping("forgot/reset")
+    public String resetPassword(UserDto userDto, Model model) {
+        Optional<User> opt = userRepository.findByEmailIgnoreCase(userDto.getEmail());
+        if(opt.isPresent()) {
+            User user = opt.get();
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            userRepository.save(user);
+            // TODO: alten Token löschen
+            model.addAttribute("success", true);
+        }
+        else {
+            model.addAttribute("error", true);
+        }
+        return "reset-password";
+    }
+
     @PostMapping("register")
     public String registerProcess(@Valid UserDto userDto, BindingResult result, Model model) throws MessagingException {
 
