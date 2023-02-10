@@ -3,6 +3,7 @@ package de.lubowiecki.securedemo.controler;
 import de.lubowiecki.securedemo.model.Token;
 import de.lubowiecki.securedemo.model.User;
 import de.lubowiecki.securedemo.model.UserDto;
+import de.lubowiecki.securedemo.model.UserStatus;
 import de.lubowiecki.securedemo.repository.TokenRepository;
 import de.lubowiecki.securedemo.repository.UserRepository;
 import de.lubowiecki.securedemo.service.CustomEmailService;
@@ -15,9 +16,11 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,7 +79,7 @@ public class MainController {
         tokenRepository.save(token);
         //emailService.sendSimpleEmail(user.getEmail(), "Registrierung", "Du hast dich erfolgreich registriert...");
         //emailService.sendHtmlEmail(user.getEmail(), "Registrierung");
-        emailService.sendHtmlRegisterEmail(user, token.getId().toString());
+        emailService.sendHtmlRegisterEmail(user, token.getId());
         return "redirect:/register/success";
     }
 
@@ -86,10 +89,27 @@ public class MainController {
         return "register";
     }
 
-    @GetMapping("activate/{token}")
-    public String checkToken(@PathVariable String token, Model model) {
-        Optional<Token> opt = tokenRepository.findById(UUID.fromString(token));
-        // TODO: Token abfragen, User aktivieren, Token löschen
-        return "register";
+    @GetMapping("activate")
+    public String checkToken(@RequestParam("token") String tokenStr, Model model) {
+        try {
+            Optional<Token> opt = tokenRepository.findByIdAndType(UUID.fromString(tokenStr), Token.TokenType.ACTIVATION);
+
+            if(opt.isPresent()) {
+                Token token = opt.get();
+                User user = token.getUser();
+                user.setStatus(UserStatus.ACTIVE);
+                userRepository.save(user);
+                tokenRepository.delete(token);
+                model.addAttribute("success", true);
+            }
+            else {
+                throw new RuntimeException("Token nicht gefunden.");
+            }
+        }
+        catch(Exception e) {
+            model.addAttribute("error", true);
+        }
+
+        return "activate";
     }
 }

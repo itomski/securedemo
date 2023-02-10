@@ -15,6 +15,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class CustomEmailService {
@@ -47,14 +48,14 @@ public class CustomEmailService {
         mailSender.send(msg);
     }
 
-    public void sendHtmlRegisterEmail(User user, String token) throws MessagingException {
+    public void sendHtmlRegisterEmail(User user, UUID token) throws MessagingException {
         MimeMessage msg = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(msg, true);
         helper.setFrom("ike@localhost");
         helper.setTo(user.getEmail());
         helper.setSubject("Registrierung");
         Map<String, Object> vars = new HashMap<>();
-        vars.put("link", "http://localhost:8080/activate/" + token);
+        vars.put("link", "http://localhost:8080/activate?token=" + token);
         helper.setText(renderTemplateEmail(vars, "email-register"), true);
         mailSender.send(msg);
     }

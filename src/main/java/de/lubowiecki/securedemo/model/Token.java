@@ -40,4 +40,32 @@ public class Token {
     public UUID getId() {
         return id;
     }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    public void setType(TokenType type) {
+        this.type = type;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
